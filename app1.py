@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, session, redirect, jsonify
 import sqlite3
 import bcrypt
-app = Flask(__name__, template_folder="templates1", ststic_folder="static1")
+
+app = Flask(__name__, template_folder="templates1", static_folder="static1")
 app.secret_key = "skrivnost123"
 
 DB_pot="db1.sqlite3"
@@ -9,12 +10,10 @@ DB_pot="db1.sqlite3"
 def baza():
     conn = sqlite3.connect('db1.sqlite3')
     c = conn.cursor()
-    c.execute('create table if not exists user (id intiger primary key autoincrement, username text, password text)')
-    c.execute('create table if not exists notes (id intiger primary key autoincrement, context text, user_id integer)')
-    c.commit()
-    c.close()
-
-    init_db()
+    c.execute('create table if not exists user (id integer primary key autoincrement, username text, password text)')
+    c.execute('create table if not exists notes (id integer primary key autoincrement, context text, user_id integer)')
+    conn.commit()
+    conn.close()
 
 
 #--- registracija ---
@@ -23,5 +22,6 @@ def reg():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"].encode('utf-8')
-        haspass = bcrypt.hashpw(password, bcrypt(gensalt()))
+        haspass = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
+
         
