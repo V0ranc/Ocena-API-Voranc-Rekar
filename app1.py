@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, jsonify
 import sqlite3
-
+import bcrypt
 app = Flask(__name__, template_folder="templates1", ststic_folder="static1")
 app.secret_key = "skrivnost123"
 
@@ -22,4 +22,6 @@ def baza():
 def reg():
     if request.method == "POST":
         username = request.form["username"]
-        password = request.form["password"]
+        password = request.form["password"].encode('utf-8')
+        haspass = bcrypt.hashpw(password, bcrypt(gensalt()))
+        
