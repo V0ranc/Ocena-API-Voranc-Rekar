@@ -3,20 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="static1/style.css">
     <title>Document</title>
 </head>
 <body>
     <h2>Zapiski</h2>
-    <h3>Pozdravljen{{ user }}!!!</h3>
-    <form method="GET" action="/main">
-        <input type="text" name="filter" placeholder="Filtriraj po naslovu">
-        <button type="submit">Filtriraj</button>
-    </form>
+    <h3>Pozdravljen</h3>
+   
 
     <form method="POST" action="/add_note">
         <input type="text" name="Naslov" placeholder="Naslov not'a" required>
+        <br>
         <textarea name="Polje" id="note" rows="10" cols="10"></textarea>
         <button type="submit">Shrani</button>
+    </form>
+    <br>
+    <form method="GET" action="/main">
+        <input type="text" name="filter" placeholder="Filtriraj po naslovu">
+        <button type="submit">Filtriraj</button>
     </form>
 
     <h3>Zapiski</h3>
