@@ -13,7 +13,7 @@
         <button type="submit">Filtriraj</button>
     </form>
 
-    <form method="POST" action="/note">
+    <form method="POST" action="/add_note">
         <input type="text" name="Naslov" placeholder="Naslov not'a" required>
         <textarea name="Polje" id="note" rows="10" cols="10"></textarea>
         <button type="submit">Shrani</button>
@@ -23,8 +23,9 @@
     <ul>
         {% for n in notes %}
        <li>
-            <strong>{{ n[1] }}</strong>
+            <strong>{{ n[1] }}</strong> -{{ n[2] }}
        </li> 
+       {% endfor %}
     </ul>
 </body>
 </html>

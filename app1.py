@@ -32,7 +32,7 @@ def reg():
 
         conn = sqlite3.connect(DB_pot)
         c = conn.cursor()
-        c.execute('select * from user where usernamw=?', (username))
+        c.execute('select * from user where username=?', (username,))
         if c.fetchone():
             conn.close()
             return "Uporabnik že obstaja"
@@ -56,12 +56,13 @@ def loggin():
 
         conn = sqlite3.connect(DB_pot)
         c = conn.cursor()
-        c.execute("SELECT * FROM user where usename=?", (username))
+        c.execute("SELECT * FROM user where username=?", (username,))
         user = c.fetchone()
         conn.close()
 
         if user and bcrypt.checkpw(password, user[2].encode('utf-8')):
-             session["user"] = user[0]
+             session["user_id"] = user[0]
+             session["username"] = user[1]
              return redirect("/main")
         return "Napačen login"
     return render_template("loggin.html")
@@ -69,23 +70,40 @@ def loggin():
 # --- MAIN PAGE ---
 @app.route("/main")
 def main():
-    if "user" not in session:
+    if "user_id" not in session:
         return redirect("/loggin")
     
-    filter = request.args.get("filter")
+    filter_naslov = request.args.get("filter")
 
     conn = sqlite3.connect(DB_pot)
     c = conn.cursor()
 
-    if filter:
-        c.execute('select * from notes where naslov=?', (f"%{filter}%"))
+    if filter_naslov:
+        c.execute('select * from notes where user_id=? and naslov like ?', (session["user_id"], f"%{filter_naslov}%"))
     
     else:
-        c.execute("select * from notes")
+        c.execute("select * from notes where user_id=?", (session["user_id"],))
 
     notes = c.fetchall()
     conn.close()
-    return render_template("main.html", user=session["user"])
+    
+    return render_template("main.html", notes=notes, filter_naslov=filter_naslov)
+
+# ---vstvrjanje notesov ---
+@app.route("/add_note", methods=["POST"])
+def add_note():
+    naslov = request.form["Naslov"]
+    context = request.form["Polje"]
+
+    user_id = session["user_id"]
+
+    conn = sqlite3.connect(DB_pot)
+    c = conn.cursor()
+    c.execute("insert into notes (naslov, context, user_id) values (?, ?, ?)", (naslov, context, user_id))
+    conn.commit()
+    conn.close()
+
+    return redirect("/main")
 
 
 
