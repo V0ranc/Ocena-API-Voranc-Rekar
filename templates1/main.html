@@ -9,27 +9,66 @@
 <body>
     <h2>Zapiski</h2>
     <h3>Pozdravljen</h3>
-   
 
-    <form method="POST" action="/add_note">
+    <!-- AJAX forma -->
+    <form id="noteForm">
         <input type="text" name="Naslov" placeholder="Naslov not'a" required>
         <br>
-        <textarea name="Polje" id="note" rows="10" cols="10"></textarea>
+        <textarea name="Polje" rows="5" cols="30" required></textarea>
+        <br>
         <button type="submit">Shrani</button>
     </form>
+
     <br>
+
+    <!-- (ta filter še vedno dela normalno, ni AJAX) -->
     <form method="GET" action="/main">
         <input type="text" name="filter" placeholder="Filtriraj po naslovu">
         <button type="submit">Filtriraj</button>
     </form>
 
     <h3>Zapiski</h3>
-    <ul>
+
+    <!-- pomembno: id -->
+    <ul id="notes">
         {% for n in notes %}
-       <li>
-            <strong>{{ n[1] }}</strong> -{{ n[2] }}
-       </li> 
-       {% endfor %}
+        <li>
+            <strong>{{ n[1] }}</strong> - {{ n[2] }}
+            <form method="POST" action="/delete_note" style="display:inline;">
+            <input type="hidden" name="id" value="{{ n[0] }}">
+            <button type="submit">Izbrisi</button>
+        </form>
+        </li> 
+        {% endfor %}
     </ul>
+
+    <!-- AJAX SCRIPT -->
+    <script>
+    document.getElementById("noteForm").addEventListener("submit", function(e) {
+        e.preventDefault(); // prepreči reload
+
+        const formData = new FormData(this);
+
+        fetch("/add_note", {
+            method: "POST",
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            // ustvari nov element
+            const li = document.createElement("li");
+
+            li.innerHTML = `<strong>${data.naslov}</strong> - ${data.context}`;
+
+            // dodaj na vrh seznama
+            document.getElementById("notes").prepend(li);
+
+            // reset forme
+            this.reset();
+        })
+        .catch(err => console.error(err));
+    });
+    </script>
+
 </body>
 </html>

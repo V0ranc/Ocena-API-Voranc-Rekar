@@ -101,16 +101,34 @@ def add_note():
     c = conn.cursor()
     c.execute("insert into notes (naslov, context, user_id) values (?, ?, ?)", (naslov, context, user_id))
     conn.commit()
+    note_id = c.lastrowid
     conn.close()
 
-    return redirect("/main")
+    return jsonify({
+        "id": note_id,
+        "naslov": naslov,
+        "context": context
+    })
 
 
 
+@app.route("/delete_note", methods=["POST"])
+def delete_note():
+    note_id = request.form["id"]
+    user_id = session["user_id"]
+
+    conn = sqlite3.connect(DB_pot)
+    c = conn.cursor()
+
+    c.execute("DELETE FROM notes WHERE id=? AND user_id=?", (note_id, user_id))
+    conn.commit()
+    conn.close()
+
+    return redirect("/main") 
 
 
-
-app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
        
  
  
