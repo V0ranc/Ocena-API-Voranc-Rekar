@@ -8,7 +8,23 @@
 <body>
     <h2>Zapiski</h2>
     <h3>Pozdravljen{{ user }}!!!</h3>
-    <textarea name="Jeger" id="note" rows="10" cols="10"></textarea>
-    <button type="submit">Shrani</button>
+    <form method="GET" action="/main">
+        <input type="text" name="filter" placeholder="Filtriraj po naslovu">
+        <button type="submit">Filtriraj</button>
+    </form>
+
+    <form method="POST" action="/note">
+        <input type="text" name="Naslov" placeholder="Naslov not'a" required>
+        <textarea name="Polje" id="note" rows="10" cols="10"></textarea>
+        <button type="submit">Shrani</button>
+    </form>
+
+    <h3>Zapiski</h3>
+    <ul>
+        {% for n in notes %}
+       <li>
+            <strong>{{ n[1] }}</strong>
+       </li> 
+    </ul>
 </body>
 </html>
