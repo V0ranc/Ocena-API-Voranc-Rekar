@@ -3,7 +3,6 @@ import sqlite3
 import bcrypt
 
 app = Flask(__name__, template_folder="templates1", static_folder="static1")
-app.secret_key = "skrivnost123"
 
 DB_pot="db1.sqlite3"
 #--- Baza ---
@@ -15,6 +14,12 @@ def baza():
     conn.commit()
     conn.close()
 
+# homepage
+@app.route("/")
+def home():
+    if "user" in session:
+        return redirect("/main")
+    return redirect("/loggin")
 
 #--- registracija ---
 @app.route("/reg", methods = ["GET", "POST"])
@@ -23,5 +28,28 @@ def reg():
         username = request.form["username"]
         password = request.form["password"].encode('utf-8')
         haspass = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
+
+@app.route("/loggin", methods = ["GET", "POST"])
+def loggin():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"].encode('utf-8')
+
+        conn = sqlite3.connect('db1.sqlite3')
+        c = conn.cursor()
+        c.execute("SELECT * FROM user where usename=?", (username,))
+        user = c.fetchone()
+        conn.close()
+
+        if user and bcrypt.checkpw(password, user[2].encode('utf-8')):
+             session["user"] = user[0]
+             return redirect("/main")
+        return "Napačen login"
+    return render_template("loggin.html")
+
+app.run(debug=True)
+       
+ 
+ 
 
         
