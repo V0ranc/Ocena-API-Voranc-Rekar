@@ -55,15 +55,15 @@
         })
         .then(res => res.json())
         .then(data => {
-            // ustvari nov element
+ 
             const li = document.createElement("li");
 
             li.innerHTML = `<strong>${data.naslov}</strong> - ${data.context}`;
 
-            // dodaj na vrh seznama
+
             document.getElementById("notes").prepend(li);
 
-            // reset forme
+
             this.reset();
         })
         .catch(err => console.error(err));
