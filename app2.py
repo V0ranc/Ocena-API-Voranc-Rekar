@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, jsonify
 import sqlite3
+import bcrypt
 
 app = Flask(__name__, template_folder="templates2", static_folder="static2")
 app.secret_key = "6549321251"
@@ -62,14 +63,44 @@ def loggin():
         if user and bcrypt.checkpw(password, user[2].encode('utf-8')):
              session["user_id"] = user[0]
              session["username"] = user[1]
-             return redirect("/main")
+             return redirect("/mainPage")
         return "Napačen login"
     return render_template("loggin.html")
 
 #--- Main Page---
-@app.route("/mainPage", methods = ["GET", "POST"])
+@app.route("/mainPage")
 def mainPage():
-        if "user_id" not in session:
+    if "user_id" not in session:
         return redirect("/loggin")
 
+    conn = sqlite3.connect(DB_pot)
+    c = conn.cursor()
+    c.execute("""select post.id, post.context, post.image, post.created_at, user.username from post
+            join user on post.user_id = user.id 
+            order by posr.created_at DESC """)
+    post = c.fetchall()
+    conn.close()
+
+    return render_template("main.html", post=post)
+
+@app.route("/addPost", methods=["GET", "POST"])
+def addPost():
+    if "user_id" not in session:
+        return redirect("/loggin")
     
+    if request.method == "POST":
+        context = request.form["context"]
+        image = request.form["image"]
+
+        conn = sqlite3.connect(DB_pot)
+        c = conn.cursor()
+        c.execute("""insert into post (context, image, user_id) values (?, ?, ?) """), (context, image, session[user_id])
+        conn.comit()
+        conn.close()
+
+        return redirect("/mainPage")
+    return render_template("addPost.html")
+
+@app.route("/com", methods=["GET", "POST"])
+def com():
+    if request.method = "POST"
