@@ -16,12 +16,6 @@ def baza():
     conn.close()
 baza()
 
-# --- homepage ---
-@app.route("/")
-def home():
-    if "user" in session:
-        return redirect("/main")
-    return redirect("/loggin")
 
 #--- registracija ---
 @app.route("/reg", methods = ["GET", "POST"])

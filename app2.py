@@ -10,18 +10,13 @@ DB_pot="db2.sqlite3"
 def baza():
     conn = sqlite3.connect(DB_pot)
     c = conn.cursor()
-    c.execute('create table if not exists user (id integer primary key autoincrement, username text, password text)')
-    c.execute('create table if not exists post (id integer primary key autoincrement, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, context text, image text,  user_id integer)')
+    c.execute("create table if not exists user (id integer primary key autoincrement, username text, password text)")
+    c.execute("create table if not exists post (id integer primary key autoincrement, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, context text, image text,  user_id integer)")
+    c.execute("create table if not exists com (id integer primary key autoincrement, context text, user_id integer, note_id integer)")
     conn.commit()
     conn.close()
 baza()
 
-# --- homepage ---
-@app.route("/")
-def home():
-    if "user" in session:
-        return redirect("/mainPage")
-    return redirect("/loggin")
 
 #--- registracija ---
 @app.route("/reg", methods = ["GET", "POST"])
@@ -39,7 +34,7 @@ def reg():
         
         haspass = bcrypt.hashpw(password, bcrypt.gensalt()).decode('utf-8')
         
-        c.execute('insert into user(username, password) VALUES (?, ?)', (username, haspass))
+        c.execute("insert into user(username, password) VALUES (?, ?)", (username, haspass))
         conn.commit()
         conn.close()
 
@@ -56,7 +51,7 @@ def loggin():
 
         conn = sqlite3.connect(DB_pot)
         c = conn.cursor()
-        c.execute("SELECT * FROM user where username=?", (username,))
+        c.execute("SELECT * FROM user where username = ?", (username,))
         user = c.fetchone()
         conn.close()
 
@@ -75,14 +70,21 @@ def mainPage():
 
     conn = sqlite3.connect(DB_pot)
     c = conn.cursor()
-    c.execute("""select post.id, post.context, post.image, post.created_at, user.username from post
+    c.execute(""" select post.id, post.context, post.image, post.created_at, user.username from post
             join user on post.user_id = user.id 
-            order by posr.created_at DESC """)
+            order by post.created_at DESC """)
     post = c.fetchall()
+    c.execute("""
+        select com.context, com.note_id, user.username
+        from com
+        join user ON com.user_id = user.id
+    """)
+    comments = c.fetchall()
     conn.close()
 
-    return render_template("main.html", post=post)
+    return render_template("main.html", post=post, comments=comments)
 
+#--ADD POST--
 @app.route("/addPost", methods=["GET", "POST"])
 def addPost():
     if "user_id" not in session:
@@ -94,13 +96,14 @@ def addPost():
 
         conn = sqlite3.connect(DB_pot)
         c = conn.cursor()
-        c.execute("""insert into post (context, image, user_id) values (?, ?, ?) """), (context, image, session[user_id])
-        conn.comit()
+        c.execute("insert into post (context, image, user_id) values (?, ?, ?) "), (context, image, session["user_id"])
+        conn.commit()
         conn.close()
 
         return redirect("/mainPage")
     return render_template("addPost.html")
 
-@app.route("/com", methods=["GET", "POST"])
+@app.route("/com")
 def com():
-    if request.method = "POST"
+    if "user_id" not in session:
+        return jsonify({"status": "error"})
