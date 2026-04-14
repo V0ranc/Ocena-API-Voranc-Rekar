@@ -17,6 +17,11 @@ def baza():
     conn.close()
 baza()
 
+@app.route("/")
+def home():
+    if "user_id" in session:
+        return redirect("/mainPage")
+    return redirect("/loggin")
 
 #--- registracija ---
 @app.route("/reg", methods = ["GET", "POST"])
@@ -73,7 +78,7 @@ def mainPage():
     c.execute(""" select post.id, post.context, post.image, post.created_at, user.username from post
             join user on post.user_id = user.id 
             order by post.created_at DESC """)
-    post = c.fetchall()
+    posts = c.fetchall()
     c.execute("""
         select com.context, com.note_id, user.username
         from com
@@ -82,7 +87,7 @@ def mainPage():
     comments = c.fetchall()
     conn.close()
 
-    return render_template("main.html", post=post, comments=comments)
+    return render_template("mainPage.html", posts=posts, comments=comments)
 
 #--ADD POST--
 @app.route("/addPost", methods=["GET", "POST"])
@@ -96,17 +101,18 @@ def addPost():
 
         conn = sqlite3.connect(DB_pot)
         c = conn.cursor()
-        c.execute("insert into post (context, image, user_id) values (?, ?, ?) "), (context, image, session["user_id"])
+        c.execute("insert into post (context, image, user_id) values (?, ?, ?) ", (context, image, session["user_id"]))
         conn.commit()
         conn.close()
 
         return redirect("/mainPage")
     return render_template("addPost.html")
 
-@app.route("/com", method=["POST"])
+@app.route("/com", methods=["POST"])
 def com():
+    
     if "user_id" not in session:
-        return redirect("/loggin")
+        return jsonify({"status": "error"})
     
     data = request.json
     context = data.get("context")
@@ -114,12 +120,16 @@ def com():
     
     conn = sqlite3.connect(DB_pot)
     c = conn.cursor()
-    c.execute("inser into com (context, user_id, note_id) VALUES (?, ?, ?)", (context, session["user_id"], post_id))
+    c.execute("insert into com (context, user_id, note_id) VALUES (?, ?, ?)", (context, session["user_id"], post_id))
     conn.commit()
     conn.close()
 
     return jsonify({
-        "username": session["user_id"],
+        "status": "ok",
+        "username": session["username"],
         "context": context,
         "post_id": post_id
     })
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
