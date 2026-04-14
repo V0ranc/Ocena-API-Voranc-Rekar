@@ -103,7 +103,23 @@ def addPost():
         return redirect("/mainPage")
     return render_template("addPost.html")
 
-@app.route("/com")
+@app.route("/com", method=["POST"])
 def com():
     if "user_id" not in session:
-        return jsonify({"status": "error"})
+        return redirect("/loggin")
+    
+    data = request.json
+    context = data.get("context")
+    post_id = data.get("post_id")
+    
+    conn = sqlite3.connect(DB_pot)
+    c = conn.cursor()
+    c.execute("inser into com (context, user_id, note_id) VALUES (?, ?, ?)", (context, session["user_id"], post_id))
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "username": session["user_id"],
+        "context": context,
+        "post_id": post_id
+    })
