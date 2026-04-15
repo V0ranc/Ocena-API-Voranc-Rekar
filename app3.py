@@ -8,9 +8,29 @@ app.secret_key = "jwidcnwe734749ez6zgg54567433dbbtjdfsf112"
 DB_pot="db3.sqlite3"
 
 #--- Baza ---
+def baza_db():
+    conn = sqlite3.connect(DB_pot)
+    c = conn.cursor()
+    c.execute("""CREATE TABLE IF NOT EXISTS user 
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                  username TEXT UNIQUE, 
+                  password TEXT, 
+                  security_answer TEXT)"""")
+    c.execute("""CREATE TABLE IF NOT EXISTS assets 
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                  coin_id TEXT, 
+                  amount REAL, 
+                  user_id INTEGER)"""")
+    conn.commit()
+    conn.close()
+
+baza_db()
 
 @app.route("/")
-def mainPage():
+def main():
+    if "user_id" not in session:
+        return redirect("/loggin")
+    return render_template("index.html", username=session["username"])
 
 #--- registracija ---
 @app.route("/reg", methods = ["GET", "POST"])
@@ -56,4 +76,16 @@ def loggin():
         return "Napačen login"
     return render_template("loggin.html")
 
+@app.route("/mainPage")
+def mainPage():
+    if "user_id" not in session:
+        return redirect("/loggin")
+    
+    conn = sqlite3.connect(DB_pot)
+    c = conn.cursor()
+    c.execute("SELECT id, coin_id, amount FROM assets WHERE user_id = ?", (session["user_id"],))
+    coins = c.fetchall()
+    conn.close()
+    
+    return render_template("index.html", username=session["username"], coins=coins)
 
