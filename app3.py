@@ -89,3 +89,19 @@ def mainPage():
     
     return render_template("index.html", username=session["username"], coins=coins)
 
+    @app.route("/add_coin", methods=["POST"])
+def add_coin():
+    if "user_id" not in session:
+        return redirect("/loggin")
+    
+    coin_id = request.form["coin_id"].lower().strip()
+    amount = request.form["amount"]
+    
+    conn = sqlite3.connect(DB_pot)
+    c = conn.cursor()
+    c.execute("INSERT INTO assets (coin_id, amount, user_id) VALUES (?, ?, ?)", 
+              (coin_id, amount, session["user_id"]))
+    conn.commit()
+    conn.close()
+    
+    return redirect("/mainPage")
