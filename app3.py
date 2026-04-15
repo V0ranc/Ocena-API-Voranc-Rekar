@@ -15,12 +15,12 @@ def baza_db():
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, 
                   username TEXT UNIQUE, 
                   password TEXT, 
-                  security_answer TEXT)"""")
+                  security_answer TEXT)""")
     c.execute("""CREATE TABLE IF NOT EXISTS assets 
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, 
                   coin_id TEXT, 
                   amount REAL, 
-                  user_id INTEGER)"""")
+                  user_id INTEGER)""")
     conn.commit()
     conn.close()
 
@@ -30,7 +30,7 @@ baza_db()
 def main():
     if "user_id" not in session:
         return redirect("/loggin")
-    return render_template("index.html", username=session["username"])
+    return render_template("mainPage.html", username=session["username"])
 
 #--- registracija ---
 @app.route("/reg", methods = ["GET", "POST"])
@@ -89,7 +89,7 @@ def mainPage():
     
     return render_template("index.html", username=session["username"], coins=coins)
 
-    @app.route("/add_coin", methods=["POST"])
+@app.route("/add_coin", methods=["POST"])
 def add_coin():
     if "user_id" not in session:
         return redirect("/loggin")
@@ -105,3 +105,20 @@ def add_coin():
     conn.close()
     
     return redirect("/mainPage")
+
+@app.route("/get_price/<coin>")
+def get_price(coin):
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin}&vs_currencies=eur"
+    try:
+        r = requests.get(url, timeout=5)
+        data = r.json()
+        if coin in data:
+            return jsonify({"success": True, "price": data[coin]['eur']})
+    except:
+        pass
+    return jsonify({"success": False})
+
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
