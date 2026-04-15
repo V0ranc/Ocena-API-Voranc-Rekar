@@ -131,5 +131,27 @@ def com():
         "post_id": post_id
     })
 
+@app.route("/forgotPas", methods=["GET", "POST"])
+def forgotPas():
+    
+    if request.method == "POST":
+        username = request.form.get("username")
+        new_pas = request.form.get("password").encode('utf-8')
+        hash_pas = bcrypt.hashpw(new_pas, bcrypt.gensalt()).decode('utf-8')
+        conn = sqlite3.connect(DB_pot)
+        c = conn.cursor()
+        c.execute("SELECT * FROM user WHERE username = ?", (username,))
+        if c.fetchone():
+            c.execute("UPDATE user SET password = ? WHERE username = ?", (hash_pas, username))
+            conn.commit()
+            conn.close()
+        conn.close()
+        return redirect("/loggin")
+        
+    return render_template("forgotPas.html")
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
