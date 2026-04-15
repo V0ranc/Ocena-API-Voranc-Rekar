@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Glavna stran</title>
+</head>
+<body>
+    <h1>Pozdravljen, {{ username }}</h1>
+
+    <h3>Dodaj kovanec</h3>
+    <form action="/add_coin" method="POST">
+        <input type="text" name="coin_id" placeholder="ID (npr. bitcoin)" required>
+        <input type="number" step="any" name="amount" placeholder="Količina" required>
+        <button type="submit">Dodaj</button>
+    </form>
+
+
+
+
+</body>
+</html>
