@@ -20,7 +20,7 @@ baza()
 @app.route("/")
 def home():
     if "user_id" in session:
-        return redirect("/mainPage")
+        return redirect("/loggin")
     return redirect("/loggin")
 
 #--- registracija ---

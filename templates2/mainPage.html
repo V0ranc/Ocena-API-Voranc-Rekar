@@ -1,14 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glavna stran</title>
+    <title>Main Page</title>
 </head>
 <body>
 
-<h1>Pozdravljen</h1>
+<h1>Dobrodošel, {{ session.username }}</h1>
 
+<a href="/addPost">Dodaj post</a>
+
+<hr>
+
+
+{% for post in posts %}
+<div>
+    
+    <h3>{{ post[4] }}</h3> 
+    <p>{{ post[1] }}</p>  
+    
+    {% if post[2] %}
+        <img src="{{ post[2] }}" width="200">
+    {% endif %}
+    
+    <small>{{ post[3] }}</small>
+
+    <hr>
+
+  
+    <div id="comments-{{ post[0] }}">
+        {% for com in comments %}
+            {% if com[1] == post[0] %}
+                <p><b>{{ com[2] }}</b>: {{ com[0] }}</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+
+    <input type="text" id="input-{{ post[0] }}" placeholder="Komentar...">
+    <button onclick="addComment({{ post[0] }})">Pošlji</button>
+
+</div>
+{% endfor %}
+
+<script>
+function addComment(postId) {
+    const input = document.getElementById("input-" + postId);
+    const text = input.value;
+
+    fetch("/com", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            context: text,
+            post_id: postId
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "ok") {
+            const div = document.getElementById("comments-" + postId);
+
+            const p = document.createElement("p");
+            p.innerHTML = "<b>" + data.username + "</b>: " + data.context;
+            div.appendChild(p);
+
+            input.value = "";
+        }
+    });
+}
+</script>
 
 </body>
 </html>
