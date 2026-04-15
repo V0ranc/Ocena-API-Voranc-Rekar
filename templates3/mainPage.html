@@ -4,17 +4,58 @@
     <title>Glavna stran</title>
 </head>
 <body>
-    <h1>Pozdravljen, {{ username }}</h1>
+    <h1>Pozdravkjen, {{ username }}</h1>
 
-    <h3>Dodaj kovanec</h3>
+    <h3>ADD Coin</h3>
     <form action="/add_coin" method="POST">
         <input type="text" name="coin_id" placeholder="ID (npr. bitcoin)" required>
         <input type="number" step="any" name="amount" placeholder="Količina" required>
         <button type="submit">Dodaj</button>
     </form>
 
+    <hr>
 
+    <h3>Your portfolio</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Kovanec (ID)</th>
+                <th>Količina</th>
+                <th>Cena na enoto (€)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for coin in coins %}
+            <tr>
+                <td>{{ coin[1] }}</td> <td>{{ coin[2] }}</td> <td id="cena-{{ coin[1] }}">Nalagam...</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
+    <script>
+        function osveziCene() {
+            const celice = document.querySelectorAll('[id^="cena-"]');
+            
+            celice.forEach(celica => {
+                const kovanecId = celica.id.replace('cena-', '');
+                
+                fetch('/get_price/' + kovanecId)
+                    .then(odgovor => odgovor.json())
+                    .then(podatki => {
+                        if (podatki.success) {
+                            celica.innerText = podatki.price + " €";
+                        } else {
+                            celica.innerText = "Napaka (ID)";
+                        }
+                    })
+                    .catch(napaka => {
+                        celica.innerText = "Napaka povezave";
+                    });
+            });
+        }
 
+        window.onload = osveziCene;
+    </script>
 </body>
 </html>

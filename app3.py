@@ -28,9 +28,7 @@ baza_db()
 
 @app.route("/")
 def main():
-    if "user_id" not in session:
-        return redirect("/loggin")
-    return render_template("mainPage.html", username=session["username"])
+    return render_template("loggin.html")
 
 #--- registracija ---
 @app.route("/reg", methods = ["GET", "POST"])
@@ -87,7 +85,7 @@ def mainPage():
     coins = c.fetchall()
     conn.close()
     
-    return render_template("index.html", username=session["username"], coins=coins)
+    return render_template("mainPage.html", username=session["username"], coins=coins)
 
 @app.route("/add_coin", methods=["POST"])
 def add_coin():
@@ -121,4 +119,4 @@ def get_price(coin):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)
