@@ -1,24 +1,16 @@
 from flask import Flask, render_template, request, session, redirect, jsonify
 import sqlite3
 import bcrypt
+import requests
 
 app = Flask(__name__, template_folder="templates3", static_folder="static3")
 app.secret_key = "jwidcnwe734749ez6zgg54567433dbbtjdfsf112"
 DB_pot="db3.sqlite3"
 
 #--- Baza ---
-def baza():
-    conn = sqlite3.connect(DB_pot)
-    c = conn.cursor()
-    c.execute("create table if not exists user (id integer primary key autoincrement, username text, password text)")
-    c.execute("create table if not exists post (id integer primary key autoincrement, context text, image text,  user_id integer)")
-    conn.commit()
-    conn.close()
-baza()
 
 @app.route("/")
-def home():
-    return redirect("/mainPage")
+def mainPage():
 
 #--- registracija ---
 @app.route("/reg", methods = ["GET", "POST"])
@@ -64,9 +56,4 @@ def loggin():
         return "Napačen login"
     return render_template("loggin.html")
 
-@app.route("/mainPage")
-def mainPage():
-
-@app.roete("/addPost")
-def addPost:
 
