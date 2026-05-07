@@ -10,7 +10,6 @@
     <h2>Zapiski</h2>
     <h3>Pozdravljen</h3>
 
-    <!-- AJAX forma -->
     <form id="noteForm">
         <input type="text" name="Naslov" placeholder="Naslov not'a" required>
         <br>
@@ -21,7 +20,6 @@
 
     <br>
 
-    <!-- (ta filter še vedno dela normalno, ni AJAX) -->
     <form method="GET" action="/main">
         <input type="text" name="filter" placeholder="Filtriraj po naslovu">
         <button type="submit">Filtriraj</button>
@@ -29,7 +27,7 @@
 
     <h3>Zapiski</h3>
 
-    <!-- pomembno: id -->
+
     <ul id="notes">
         {% for n in notes %}
         <li>
@@ -45,7 +43,7 @@
     <!-- AJAX SCRIPT -->
     <script>
     document.getElementById("noteForm").addEventListener("submit", function(e) {
-        e.preventDefault(); // prepreči reload
+        e.preventDefault(); 
 
         const formData = new FormData(this);
 
