@@ -95,6 +95,13 @@ def add_coin():
     coin_id = request.form["coin_id"].lower().strip()
     amount = request.form["amount"]
     
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin_id}&vs_currencies=eur"
+    r = requests.get(url, timeout=5)
+    data = r.json()
+
+    if coin_id not in data:
+        return f"Neveljaven coin", 400
+    
     conn = sqlite3.connect(DB_pot)
     c = conn.cursor()
     c.execute("INSERT INTO assets (coin_id, amount, user_id) VALUES (?, ?, ?)", 
