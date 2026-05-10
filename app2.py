@@ -138,6 +138,7 @@ def forgotPas():
         username = request.form.get("username")
         new_pas = request.form.get("password").encode('utf-8')
         hash_pas = bcrypt.hashpw(new_pas, bcrypt.gensalt()).decode('utf-8')
+        
         conn = sqlite3.connect(DB_pot)
         c = conn.cursor()
         c.execute("SELECT * FROM user WHERE username = ?", (username,))
