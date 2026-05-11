@@ -152,7 +152,11 @@ def forgotPas():
     return render_template("forgotPas.html")
 
 
-
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/loggin")
+    
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
